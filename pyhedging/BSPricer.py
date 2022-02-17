@@ -360,12 +360,12 @@ class BSPricer:
         return deltas, gammas
 
     @staticmethod
-    def get_delta_gamma_distribution(derivative, stock_prices):
+    def get_delta_gamma_distribution(derivative, stock_prices, time=0):
 
         if type(derivative) == VanillaOption:
             strike = derivative.strike
             volatility = derivative.volatility
-            time_to_maturity = derivative.maturity
+            time_to_maturity = derivative.maturity - time
             d1 = (np.log(stock_prices / strike) + time_to_maturity * (volatility ** 2 / 2)) / (
                     volatility * np.sqrt(time_to_maturity))
             if derivative.payoff == 'call':
@@ -379,6 +379,7 @@ class BSPricer:
 
         else:
             derivative_to_price = deepcopy(derivative)
+            derivative_to_price.maturity = derivative_to_price.maturity - time
             h = 0.001
             delta_bs = []
             gamma_bs = []

@@ -315,7 +315,7 @@ class NNModel:
             fig_name += '.png'
             fig.savefig(fig_name)
 
-    def build_delta_gamma(self, n=100, save=False):
+    def build_delta_gamma(self, n=100, t=0, save=False):
         stock_price = Input(shape=(self._n_hedging_inst,))
         time = Input(shape=(1,))
         input_layer = Concatenate(axis=1)([stock_price, time])
@@ -327,8 +327,8 @@ class NNModel:
         sub_model = Model([stock_price, time], outputs=output)
 
         stock_price = np.linspace(0.6, 1.4, n)
-        c = BSPricer.get_vanilla_prices(stock_price.reshape((-1, 1)), self._hedging_inst)
-        sub_model_input = [np.concatenate((stock_price.reshape((-1, 1)), c), axis=1), np.zeros((n, 1))]
+        c = BSPricer.get_vanilla_prices(stock_price.reshape((-1, 1)), self._hedging_inst, time=t)
+        sub_model_input = [np.concatenate((stock_price.reshape((-1, 1)), c), axis=1), t*np.ones((n, 1))]
         strategies = np.array(sub_model.predict(sub_model_input))
         strategies_stock = strategies[:, 0]
 
@@ -340,7 +340,7 @@ class NNModel:
 
             strike = hedging_inst.strike
             volatility = hedging_inst.volatility
-            time_to_maturity = hedging_inst.maturity
+            time_to_maturity = hedging_inst.maturity - t
 
             d1 = (np.log(stock_price / strike) + time_to_maturity * (volatility ** 2 / 2)) / (
                     volatility * np.sqrt(time_to_maturity))
@@ -353,7 +353,7 @@ class NNModel:
 
             i += 1
 
-        delta_bs, gamma_bs = BSPricer.get_delta_gamma_distribution(self._derivative, stock_price)
+        delta_bs, gamma_bs = BSPricer.get_delta_gamma_distribution(self._derivative, stock_price, time=t)
 
         fig = plt.figure(figsize=(15, 8))
         plt.subplot(1, 2, 1)
