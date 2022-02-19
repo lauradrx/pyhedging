@@ -159,7 +159,8 @@ class NNModel:
 
         return payoff
 
-    def train(self, loss_name='mean_squared_error', lam=None, batch_size=32, epochs=5, lr=None, n_cycle=1, n_paths=10 ** 5):
+    def train(self, loss_name='mean_squared_error', lam=None, batch_size=32, epochs=5, lr=None, n_cycle=1,
+              n_paths=10 ** 5):
         self._loss_name = loss_name
 
         if loss_name == 'exponential_utility':

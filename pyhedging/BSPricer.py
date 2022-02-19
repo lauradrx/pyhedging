@@ -379,7 +379,9 @@ class BSPricer:
 
         else:
             derivative_to_price = deepcopy(derivative)
+            dt = derivative_to_price.maturity/derivative_to_price.n_points
             derivative_to_price.maturity = derivative_to_price.maturity - time
+            derivative_to_price.n_points = derivative_to_price.n_points - int(time/dt)
             h = 0.001
             delta_bs = []
             gamma_bs = []
